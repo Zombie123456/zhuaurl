@@ -23,7 +23,7 @@ def get_data(url):
 			return res.text
 
 
-def parse_data(url, html, l, d, n):
+def parse_data(url, html, l, d, n, iframe=''):
 	doc = pq(html)
 	aes = doc('a').items()
 	list_link = []
@@ -38,7 +38,7 @@ def parse_data(url, html, l, d, n):
 		for fi_url in URL:
 			if fi_url in u:
 				l.acquire()
-				d.append((url, len(List_set), fi_url))
+				d.append((url, len(List_set), fi_url, iframe))
 				l.release()
 				qq = True
 				break
@@ -47,6 +47,7 @@ def parse_data(url, html, l, d, n):
 	if n == 0:
 		return
 	iframe = doc('iframe').items()
+	www = 5
 	for i in iframe:
 		src = i.attr('src')
 		if src.startswith('/'):
@@ -57,8 +58,10 @@ def parse_data(url, html, l, d, n):
 			src = url + '/' + src
 		data = get_data(src)
 		if data:
-			s = parse_data(url, data, l, d, n-1)
-		break
+			s = parse_data(url, data, l, d, n-1, iframe=src)
+		www -= 1
+		if www == 0:
+			break
 
 
 def get_url(file, http=True):
@@ -106,19 +109,21 @@ def send_file(file):
 	files = {"document" : open(file)}
 	data = {'chat_id': -398945112}
 	res = requests.post(url, data=data, files=files)
+	res = res.json()
+	if not res.get('ok'):
+		files = {"document" : 'faied'.encode()}
+		res = requests.post(url, data=data, files=files)
 	print(res.text)
 
 
 
-URL = get_url('./filter_url.txt', False)
-
-
 def main():
+	URL = get_url('./shai.txt', False)
 	pool = multiprocessing.Pool(processes=4)
 	manager = multiprocessing.Manager()
 	l = manager.Lock()
 	d = manager.list()
-	file = r'./url_list.txt'
+	file = r'./yuan.txt'
 	url_l = get_url(file)
 	for i in url_l:
 		pool.apply_async(run, (i, l, d))
@@ -127,7 +132,7 @@ def main():
 	pool.join()
 	d = sorted(d, key = lambda item:item[1], reverse = True)
 	open_file(d)
-	send_file('./result.csv')
+	# send_file('./result.csv')
 
 if __name__ == '__main__':
 	print(time.time())
