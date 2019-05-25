@@ -60,6 +60,7 @@ def parse_data(url, html, l, d, n, iframe=''):
 		if data:
 			s = parse_data(url, data, l, d, n-1, iframe=src)
 		www -= 1
+		break
 		if www == 0:
 			break
 
@@ -132,7 +133,7 @@ def main():
 	pool.join()
 	d = sorted(d, key = lambda item:item[1], reverse = True)
 	open_file(d)
-	# send_file('./result.csv')
+	send_file('./result.csv')
 
 if __name__ == '__main__':
 	print(time.time())
