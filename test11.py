@@ -29,12 +29,13 @@ def parse_data(url, html, l, d, n, iframe=''):
 	list_link = []
 	for a in aes:
 		s = a.attr("href")
-		if s:
+		if s and s.startswith('http'):
 			list_link.append(s)
 	List_set = set(list_link)
-
 	qq = False
+	nnnn = 500
 	for u in List_set:
+		n -= 1
 		for fi_url in URL:
 			if fi_url in u:
 				l.acquire()
@@ -42,12 +43,12 @@ def parse_data(url, html, l, d, n, iframe=''):
 				l.release()
 				qq = True
 				break
-		if qq:
+		if qq or nnnn == 0:
 			break
 	if n == 0:
 		return
 	iframe = doc('iframe').items()
-	www = 5
+	www = 3
 	for i in iframe:
 		src = i.attr('src')
 		if src.startswith('/'):
@@ -60,7 +61,6 @@ def parse_data(url, html, l, d, n, iframe=''):
 		if data:
 			s = parse_data(url, data, l, d, n-1, iframe=src)
 		www -= 1
-		break
 		if www == 0:
 			break
 
@@ -99,35 +99,41 @@ def open_file(data):
 	csvFile.close()
 
 
-def run(i, l, d):
+def run(i, l, d, LEN):
 	data = get_data(i)
 	if data:
 		dic = parse_data(i, data, l, d, 1)
+	if LEN % 1000 == 0:
+		if d:
+			open_file(d)
+		else:
+			open_file([('nodata', '2222')])
+		send_file('./result.csv', pppp=False)
 
-
-def send_file(file):
+def send_file(file, pppp=True):
 	url = 'https://api.telegram.org/bot711166180:AAErNuMGY5LU72YP7ZeOBwH53jRKSp5NeXY/sendDocument'
 	files = {"document" : open(file)}
-	data = {'chat_id': -398945112}
+	if pppp:
+		data = {'chat_id': -398945112}
+	else:
+		data = {'chat_id': -285548732}
 	res = requests.post(url, data=data, files=files)
-	res = res.json()
-	if not res.get('ok'):
-		files = {"document" : 'faied'.encode()}
-		res = requests.post(url, data=data, files=files)
 	print(res.text)
 
 
+URL = get_url('./shai.txt', False)
 
 def main():
-	URL = get_url('./shai.txt', False)
 	pool = multiprocessing.Pool(processes=4)
 	manager = multiprocessing.Manager()
 	l = manager.Lock()
 	d = manager.list()
 	file = r'./yuan.txt'
 	url_l = get_url(file)
+	rrr = 1
 	for i in url_l:
-		pool.apply_async(run, (i, l, d))
+		pool.apply_async(run, (i, l, d, rrr))
+		rrr += 1
 	del url_l
 	pool.close()
 	pool.join()
@@ -139,8 +145,4 @@ if __name__ == '__main__':
 	print(time.time())
 	main()
 	print(time.time())
-
-
-
-
 
