@@ -35,7 +35,7 @@ def parse_data(url, html, l, d, n, iframe=''):
 	qq = False
 	nnnn = 500
 	for u in List_set:
-		n -= 1
+		nnnn -= 1
 		for fi_url in URL:
 			if fi_url in u:
 				l.acquire()
