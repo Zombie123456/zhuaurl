@@ -11,7 +11,11 @@ hearders = {
 	}
 a_url = ['baidu', 'news', 'sike', 'qq', 'hao123', 'sport', 'sina', 'worldbank', 
 'tuniu', 'liepin', '163', 'org', 'gov', 'net', '666c', 'eastmoney', 'fashion', 
-'hotel', 'bbs', 'job', 'people', 'money', 'unionpay', 'ticket', 'ali', 'dujia', 'miss']
+'hotel', 'bbs', 'job', 'people', 'money', 'unionpay', 'ticket', 'ali', 'dujia', 'miss', 'voc', 'sohu', 'pingan', '.cn',
+'jmw', 'home', 'panjk', 'admaimai', 'zxart', 'gongjiao', 'jiancai', 'blog', '.tw', 'liebiao', '51sole', '591hx', '17house', 'space',
+'site', '.ltd', 'dream', 'java', 'sonhoo', 'zhaoshang100', 'chn0769', 'taobao', 'live', '360', 'gx211', 'huangye88', '554757', 'china', 'city', 'chat',
+'agent', 'zhuangyi', 'b2b', '99cfw', 'cnjy', 'game', 'ci123', 'house', 'bao315', 'xyj321', 'fenlei', 'mgd', 'kugou', 'bizhi', 'e2say', '54086', 'qy39', 'xyj321', '7999',
+'jixiexinxi', '.xyz', 'info', 'car', 'uc', 'shop', 'lin', 'xg557', 'xg67', 'club', '.st']
 
 
 def get_data(url):
@@ -30,7 +34,7 @@ def parse_data(url, html, l, d, n):
 	aes = doc('a').items()
 	list_link = []
 	for a in aes:
-		if '<img' in a.__str__():
+		if '<img' in a.__str__() and 'width' in a.__str__():
 			s = a.attr("href")
 			if s:
 				if s.startswith('http'):
@@ -110,7 +114,7 @@ def run(i, l, d, LEN):
 	data = get_data(i)
 	if data:
 		dic = parse_data(i, data, l, d, 1)
-	if LEN % 1000 == 0:
+	if LEN % 5000 == 0:
 		if d:
 			d = sorted(d.items(), key = lambda item:item[1], reverse = True)
 			open_file(d)
@@ -131,7 +135,7 @@ def send_file(file, pppp=True):
 
 
 def main():
-	pool = multiprocessing.Pool(processes=4)
+	pool = multiprocessing.Pool(processes=8)
 	manager = multiprocessing.Manager()
 	l = manager.Lock()
 	d = manager.dict()
@@ -146,7 +150,7 @@ def main():
 	pool.join()
 	d = sorted(d.items(), key = lambda item:item[1], reverse = True)
 	open_file(d)
-	# send_file('./result.csv')
+	send_file('./result.csv')
 
 if __name__ == '__main__':
 	print(time.time())
