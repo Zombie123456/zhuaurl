@@ -17,6 +17,10 @@ a_url = ['baidu', 'news', 'sike', 'qq', 'hao123', 'sport', 'sina', 'worldbank',
 'agent', 'zhuangyi', 'b2b', '99cfw', 'cnjy', 'game', 'ci123', 'house', 'bao315', 'xyj321', 'fenlei', 'mgd', 'kugou', 'bizhi', 'e2say', '54086', 'qy39', 'xyj321', '7999',
 'jixiexinxi', '.xyz', 'info', 'car', 'uc', 'shop', 'lin', 'xg557', 'xg67', 'club', '.st']
 
+b_url = ['.jpg', '.html', '.png', '.htm', '.php'
+]
+
+
 
 def get_data(url):
 	try:
@@ -34,17 +38,23 @@ def parse_data(url, html, l, d, n):
 	aes = doc('a').items()
 	list_link = []
 	for a in aes:
-		if '<img' in a.__str__() and 'width' in a.__str__():
+		if '<img' in a.__str__():
 			s = a.attr("href")
 			if s:
-				if s.startswith('http'):
+				if s.startswith('http') and is_contain_chinese(s):
 					res=urlparse(s)
 					if res.scheme and res.hostname:
 						s56 = f'{res.scheme}://{res.hostname}'
 					if res.port:
 						s56 = f'{s56}:{res.port}'
 					if s56 not in list_link:
-						list_link.append(s56)
+						pwq = True
+						for shai_url in b_url:
+							if shai_url in s:
+								pwq = False
+								break
+						if pwq:
+							list_link.append(s56)
 	l.acquire()
 	for item in list_link:
 		ppww = True
@@ -99,6 +109,13 @@ def get_url(file):
 					else:
 						l.append('http://' + s_url.strip('/\r\n'))
 	return l
+
+
+def is_contain_chinese(check_str):
+    for ch in check_str:
+        if u'\u4e00' <= ch <= u'\u9fff':
+            return False
+    return True
 
 
 def open_file(data):
