@@ -9,13 +9,13 @@ import time
 hearders = {
 	'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
 	}
-a_url = ['baidu', 'news', 'sike', 'qq', 'hao123', 'sport', 'sina', 'worldbank', 
+a_url = ['baidu', 'news', 'sike', 'qq', 'hao123', 'sport', 'sina', 'bank', 
 'tuniu', 'liepin', '163', 'org', 'gov', 'net', '666c', 'eastmoney', 'fashion', 
 'hotel', 'bbs', 'job', 'people', 'money', 'unionpay', 'ticket', 'ali', 'dujia', 'miss', 'voc', 'sohu', 'pingan', '.cn',
 'jmw', 'home', 'panjk', 'admaimai', 'zxart', 'gongjiao', 'jiancai', 'blog', '.tw', 'liebiao', '51sole', '591hx', '17house', 'space',
 'site', '.ltd', 'dream', 'java', 'sonhoo', 'zhaoshang100', 'chn0769', 'taobao', 'live', '360', 'gx211', 'huangye88', '554757', 'china', 'city', 'chat',
 'agent', 'zhuangyi', 'b2b', '99cfw', 'cnjy', 'game', 'ci123', 'house', 'bao315', 'xyj321', 'fenlei', 'mgd', 'kugou', 'bizhi', 'e2say', '54086', 'qy39', 'xyj321', '7999',
-'jixiexinxi', '.xyz', 'info', 'car', 'uc', 'shop', 'lin', 'xg557', 'xg67', 'club', '.st', '999677']
+'jixiexinxi', '.xyz', 'info', 'car', 'uc', 'shop', 'lin', 'xg557', 'xg67', 'club', '.st', '999677', 'ip']
 
 b_url = ['.jpg', '.png', '.php'
 ]
@@ -47,7 +47,7 @@ def parse_data(url, html, l, d, n):
 				if s.startswith('http'):
 					res=urlparse(s)
 					try:
-						if res.scheme and '.' in res.hostname and (res.hostname[0] == 'w' or res.hostname[0].isdigit()):
+						if res.scheme and duje_hostname(res.hostname):
 							s56 = f'{res.scheme}://{res.hostname}'
 							if res.port:
 								s56 = f'{s56}:{res.port}'
@@ -92,6 +92,16 @@ def parse_data(url, html, l, d, n):
 		wwww -= 1
 		if wwww == 0:
 			break
+
+
+def duje_hostname(hostname):
+	if hostname[0].isdigit() and list(hostname).count('.') == 1:
+		return True
+	elif hostname[0:3] == 'www':
+		for s in hostname[3:]:
+			if s.isdigit():
+				return True
+	return False
 
 
 def get_url(file):
