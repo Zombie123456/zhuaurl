@@ -4,6 +4,8 @@ from urllib.parse import urlparse
 import multiprocessing
 import csv
 import time
+import warnings
+warnings.filterwarnings("ignore")
 
 
 hearders = {
@@ -15,18 +17,23 @@ a_url = ['baidu', 'news', 'sike', 'qq', 'hao123', 'sport', 'sina', 'bank',
 'jmw', 'home', 'panjk', 'admaimai', 'zxart', 'gongjiao', 'jiancai', 'blog', '.tw', 'liebiao', '51sole', '591hx', '17house', 'space',
 'site', '.ltd', 'dream', 'java', 'sonhoo', 'zhaoshang100', 'chn0769', 'taobao', 'live', '360', 'gx211', 'huangye88', '554757', 'china', 'city', 'chat',
 'agent', 'zhuangyi', 'b2b', '99cfw', 'cnjy', 'game', 'ci123', 'house', 'bao315', 'xyj321', 'fenlei', 'mgd', 'kugou', 'bizhi', 'e2say', '54086', 'qy39', 'xyj321', '7999',
-'jixiexinxi', '.xyz', 'info', 'car', 'uc', 'shop', 'lin', 'xg557', 'xg67', 'club', '.st', '999677', 'ip']
+'jixiexinxi', '.xyz', 'info', 'car', 'uc', 'shop', 'lin', 'xg557', 'xg67', 'club', '.st', '999677', 'ip', '.pw', 'south', 'redit', 'huanqiu', 'world', 'ganji']
 
-b_url = ['.jpg', '.png', '.php'
+b_url = ['.jpg', '.png', '.gif'
 ]
 
+# c_choose = ['<img', '立即开户', '立即投注']
 
+c_choose = ['肖', '码', '特', '期', '推荐', '平', '一', '爆', '投资', '绝杀', '计划', '中', 
+'心水', '单', '双', '主攻', '赚', '准', '现场', '开奖', '资料', '图解', '玄机', '碼', '推薦','絕殺', '計劃', '圖解','開獎', '現場','賺',
+'單', '雙', '準', '資料'
+]
 
 def get_data(url):
 	try:
 		s = requests.Session()
-		res = s.get(url, headers=hearders, timeout=(5, 18))
-		encoding = res.headers['content-type'][19:]
+		res = s.get(url, headers=hearders, timeout=(5, 18), verify=False)
+		encoding = res.headers.get('content-type', '')[19:]
 		if encoding:
 			res.encoding = encoding
 		else:
@@ -41,7 +48,7 @@ def parse_data(url, html, l, d, n):
 	aes = doc('a').items()
 	list_link = []
 	for a in aes:
-		if '<img' not in a.__str__():
+		if not is_normal(c_choose, a.__str__()):
 			s = a.attr("href")
 			if s:
 				if s.startswith('http'):
@@ -52,12 +59,7 @@ def parse_data(url, html, l, d, n):
 							if res.port:
 								s56 = f'{s56}:{res.port}'
 							if s56 not in list_link:
-								pwq = True
-								for shai_url in b_url:
-									if shai_url in s:
-										pwq = False
-										break
-								if pwq:
+								if is_normal(b_url, s):
 									list_link.append(s56)
 					except Exception as e:
 						print(e)
@@ -94,32 +96,38 @@ def parse_data(url, html, l, d, n):
 			break
 
 
+def is_normal(choose_list, value):
+	for val in choose_list:
+		if val in value:
+			return False
+	return True
+
+
 def duje_hostname(hostname):
-	if hostname[0].isdigit() and list(hostname).count('.') == 1:
+	# if hostname[0].isdigit() and list(hostname).count('.') == 1:
+	# 	return True
+	# elif hostname[0:3] == 'www':
+	# 	for s in hostname[3:]:
+	# 		if s.isdigit():
+	# 			return True
+	# return False
+	if '.' in hostname:
 		return True
-	elif hostname[0:3] == 'www':
-		for s in hostname[3:]:
-			if s.isdigit():
-				return True
-	return False
+	else:
+		return False
 
 
 def get_url(file):
 	l = []
 	with open(file, 'rb') as f:
 		for url in f:
-			p = True
 			try:
 				s_url = url.decode()
 			except Exception as e:
 				print(e)
 				continue
 			else:
-				for i in a_url:
-					if i in s_url:
-						p = False
-						break
-				if p:
+				if is_normal(a_url, s_url):
 					if s_url.startswith('http'):
 						l.append(s_url.strip('/\r\n'))
 					else:
@@ -183,7 +191,7 @@ def main():
 	pool.join()
 	d = sorted(d.items(), key = lambda item:item[1], reverse = True)
 	open_file(d)
-	send_file('./result.csv')
+	# send_file('./result.csv')
 
 if __name__ == '__main__':
 	print(time.time())
